@@ -64,6 +64,8 @@ Combines objective and judged signals into a confidence score in [0, 1].
 
 ## Demo targets
 
+Each target ships with a behavior spec (a `SPEC.md` alongside the module) describing intended behavior and edge cases. The generate prompt and the LLM judge both read this spec; it is the ground truth for "intended behavior."
+
 - Three purpose-built modules with genuine edge cases (reproducible for anyone cloning the repo):
   1. unicode-aware slugifier (normalization, empty/whitespace, length truncation)
   2. tiered pricing calculator (boundary tiers, discounts, rounding)
