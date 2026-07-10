@@ -73,7 +73,7 @@ class _Mutator(ast.NodeTransformer):
         return node
 
 
-def _mutants_for_op(tree: ast.AST, source: str, op: str) -> list[Mutant]:
+def _mutants_for_op(tree: ast.AST, op: str) -> list[Mutant]:
     mutants = []
     idx = 0
     while True:
@@ -92,7 +92,7 @@ def _mutants_for_op(tree: ast.AST, source: str, op: str) -> list[Mutant]:
 
 def generate_mutants(source: str, max_mutants: int = 20) -> list[Mutant]:
     tree = ast.parse(source)
-    per_op = [_mutants_for_op(tree, source, op) for op in OPERATORS]
+    per_op = [_mutants_for_op(tree, op) for op in OPERATORS]
     interleaved: list[Mutant] = []
     i = 0
     while any(per_op) and len(interleaved) < max_mutants:

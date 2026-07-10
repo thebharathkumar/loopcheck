@@ -13,6 +13,9 @@ def clamp(x, lo, hi):
 def is_adult(age):
     return age >= 18
 
+def diff(a, b):
+    return a - b
+
 LIMIT = 10
 ENABLED = True
 '''
@@ -25,12 +28,13 @@ def _ops(mutants):
 def test_generates_mutants_for_each_operator():
     mutants = generate_mutants(SRC, max_mutants=100)
     assert {"flip_comparison", "off_by_one", "negate_condition",
-            "delete_branch", "flip_bool"} <= _ops(mutants)
+            "delete_branch", "flip_bool", "swap_operands"} <= _ops(mutants)
 
 
 def test_each_mutant_differs_and_compiles():
+    normalized = ast.unparse(ast.parse(SRC))
     for m in generate_mutants(SRC, max_mutants=100):
-        assert m.source != SRC
+        assert m.source != normalized
         ast.parse(m.source)  # must be valid python
 
 
