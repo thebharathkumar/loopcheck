@@ -50,7 +50,8 @@ def judge_tests(
     user = _USER_TEMPLATE.format(spec=spec, module_source=module_source, test_code=test_code)
     resp = llm.complete(_SYSTEM, user, model, max_tokens=1024)
     data = _extract_json(resp.text)
-    criteria = {k: float(data["criteria"].get(k, 0.0)) for k in CRITERIA}
+    raw_criteria = data.get("criteria", {})
+    criteria = {k: float(raw_criteria.get(k, 0.0)) for k in CRITERIA}
     return JudgeResult(
         score=sum(criteria.values()) / len(criteria),
         criteria=criteria,

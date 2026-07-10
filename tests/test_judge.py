@@ -34,3 +34,9 @@ def test_judge_prompt_contains_inputs():
 def test_judge_rejects_garbage():
     with pytest.raises(ValueError):
         judge_tests(FakeLLM(["no json here"]), "m", "s", "src", "tests")
+
+
+def test_judge_missing_criteria_key_scores_zero():
+    r = judge_tests(FakeLLM(['{"rationale": "no criteria given"}']), "m", "s", "src", "tests")
+    assert r.score == 0.0
+    assert r.rationale == "no criteria given"
