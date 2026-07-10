@@ -56,3 +56,13 @@ def test_no_mock_clean():
 
 def test_mock_of_other_module_ok():
     assert check_no_target_mock(MOCKED, "othermod").score == 1.0
+
+
+def test_mock_of_bare_module_detected():
+    code = 'from unittest.mock import patch\n\ndef test_x():\n    with patch("mymod"):\n        assert True\n'
+    assert check_no_target_mock(code, "mymod").score == 0.0
+
+
+def test_async_test_functions_counted():
+    code = "import pytest\nfrom mymod import add\n\nasync def test_async_add():\n    assert add(1, 2) == 3\n"
+    assert check_assertions(code).score == 1.0

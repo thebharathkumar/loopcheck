@@ -10,7 +10,7 @@ class CheckResult:
     detail: str
 
 
-def _has_assertion(fn: ast.FunctionDef) -> bool:
+def _has_assertion(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     for node in ast.walk(fn):
         if isinstance(node, ast.Assert):
             return True
@@ -30,7 +30,7 @@ def check_assertions(test_code: str) -> CheckResult:
         return CheckResult("assertions", 0.0, f"unparseable test code: {e}")
     tests = [
         n for n in ast.walk(tree)
-        if isinstance(n, ast.FunctionDef) and n.name.startswith("test_")
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith("test_")
     ]
     if not tests:
         return CheckResult("assertions", 0.0, "no test functions found")
@@ -43,7 +43,7 @@ def check_assertions(test_code: str) -> CheckResult:
 
 def check_no_target_mock(test_code: str, module_name: str) -> CheckResult:
     patterns = [
-        rf"patch\(\s*['\"]{re.escape(module_name)}[.'\"]",
+        rf"patch\(\s*['\"]{re.escape(module_name)}(?:\.|['\"])",
         rf"monkeypatch\.\w+\(\s*{re.escape(module_name)}\b",
         rf"monkeypatch\.\w+\(\s*['\"]{re.escape(module_name)}[.'\"]",
     ]
