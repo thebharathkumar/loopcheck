@@ -1,0 +1,10 @@
+__pycache__/
+*.egg-info/
+.venv/
+loopcheck.db
+checkpoints.db
+*.db-journal
+.coverage
+cov.json
+calibration/report.json
+.superpowers/
