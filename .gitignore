@@ -8,3 +8,4 @@ checkpoints.db
 cov.json
 calibration/report.json
 .superpowers/
+.claude/scheduled_tasks.lock
