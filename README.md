@@ -6,6 +6,10 @@
 
 Your agent loop says it's done. Should you believe it?
 
+<p align="center">
+  <img src="assets/loop-demo.svg" alt="Animated demo: generate, verify (confidence 0.61, retry), regenerate, verify (confidence 0.91, accept), audit chain OK" width="680">
+</p>
+
 loopcheck is an agent loop that grades its own homework — and then grades the grader. An agent writes tests, a multi-signal verifier decides whether those tests actually verify anything (mutation testing, not vibes), every decision lands in a tamper-evident audit chain, and the verifier itself is measured against hand-labeled ground truth. In the current no-judge calibration, **every file the verifier accepts is genuinely good (precision 1.00)** — and this README also tells you what it still misses (recall 0.33) and why, because a trust instrument that hides its own error bars isn't one.
 
 - **Mutation testing as ground truth** — tests must catch deliberately broken code, not just pass

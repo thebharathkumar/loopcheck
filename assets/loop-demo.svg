@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="210" viewBox="0 0 680 210" role="img" aria-label="Animated terminal demo of the loopcheck verify loop">
+  <style>
+    text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      fill: #c9d1d9;
+      white-space: pre;
+    }
+    .dim    { fill: #8b949e; }
+    .green  { fill: #3fb950; }
+    .yellow { fill: #d29922; }
+    .cyan   { fill: #79c0ff; }
+    .prompt { fill: #7ee787; }
+  </style>
+
+  <!-- terminal window -->
+  <rect x="1" y="1" width="678" height="208" rx="8" fill="#0d1117" stroke="#30363d"/>
+  <circle cx="22" cy="20" r="5" fill="#ff5f56"/>
+  <circle cx="40" cy="20" r="5" fill="#ffbd2e"/>
+  <circle cx="58" cy="20" r="5" fill="#27c93f"/>
+  <text x="340" y="25" text-anchor="middle" class="dim" font-size="12">loopcheck — should you trust that it finished?</text>
+  <line x1="1" y1="36" x2="679" y2="36" stroke="#30363d"/>
+
+  <!-- persistent prompt line -->
+  <text x="20" y="62"><tspan class="prompt">$</tspan> loopcheck run --target targets/slugify</text>
+
+  <!-- frame 1: iter 1 generate -->
+  <g opacity="0">
+    <animate attributeName="opacity" calcMode="discrete" dur="12.5s" repeatCount="indefinite"
+             keyTimes="0;0.2;0.4;0.6;0.8" values="1;0;0;0;0"/>
+    <text x="20" y="96"><tspan class="cyan">[iter 1]</tspan> generate  <tspan class="dim">▸</tspan> agent writing tests…</text>
+    <text x="20" y="122" class="dim">          reading SPEC.md · drafting pytest file</text>
+    <text x="20" y="180" class="dim">█</text>
+  </g>
+
+  <!-- frame 2: iter 1 verify -> retry -->
+  <g opacity="0">
+    <animate attributeName="opacity" calcMode="discrete" dur="12.5s" repeatCount="indefinite"
+             keyTimes="0;0.2;0.4;0.6;0.8" values="0;1;0;0;0"/>
+    <text x="20" y="96"><tspan class="cyan">[iter 1]</tspan> verify    <tspan class="dim">▸</tspan> tests_pass <tspan class="green">✓</tspan>   assertions <tspan class="green">✓</tspan>   coverage 71%</text>
+    <text x="20" y="122">                   <tspan class="dim">▸</tspan> mutation: killed 8/20 — <tspan class="yellow">12 survivors</tspan></text>
+    <text x="20" y="152">          confidence <tspan class="yellow">0.61</tspan> → <tspan class="yellow">RETRY</tspan> <tspan class="dim">(feedback → agent)</tspan></text>
+    <text x="20" y="180" class="dim">          audit ▸ record 1 appended · hmac 3f9a…</text>
+  </g>
+
+  <!-- frame 3: iter 2 generate -->
+  <g opacity="0">
+    <animate attributeName="opacity" calcMode="discrete" dur="12.5s" repeatCount="indefinite"
+             keyTimes="0;0.2;0.4;0.6;0.8" values="0;0;1;0;0"/>
+    <text x="20" y="96"><tspan class="cyan">[iter 2]</tspan> generate  <tspan class="dim">▸</tspan> revising with verifier feedback…</text>
+    <text x="20" y="122" class="dim">          covering negative paths · boundary values · error cases</text>
+    <text x="20" y="180" class="dim">█</text>
+  </g>
+
+  <!-- frame 4: iter 2 verify -> accept -->
+  <g opacity="0">
+    <animate attributeName="opacity" calcMode="discrete" dur="12.5s" repeatCount="indefinite"
+             keyTimes="0;0.2;0.4;0.6;0.8" values="0;0;0;1;0"/>
+    <text x="20" y="96"><tspan class="cyan">[iter 2]</tspan> verify    <tspan class="dim">▸</tspan> tests_pass <tspan class="green">✓</tspan>   assertions <tspan class="green">✓</tspan>   coverage 100%</text>
+    <text x="20" y="122">                   <tspan class="dim">▸</tspan> mutation: killed <tspan class="green">17/20</tspan></text>
+    <text x="20" y="152">          confidence <tspan class="green">0.91</tspan> → <tspan class="green">ACCEPT ✓</tspan></text>
+    <text x="20" y="180" class="dim">          audit ▸ record 2 appended · hmac b41c…</text>
+  </g>
+
+  <!-- frame 5: audit + tagline -->
+  <g opacity="0">
+    <animate attributeName="opacity" calcMode="discrete" dur="12.5s" repeatCount="indefinite"
+             keyTimes="0;0.2;0.4;0.6;0.8" values="0;0;0;0;1"/>
+    <text x="20" y="96"><tspan class="prompt">$</tspan> loopcheck audit verify</text>
+    <text x="20" y="122"><tspan class="green">chain OK (2 records)</tspan> <tspan class="dim">— every decision HMAC-linked, tamper-evident</tspan></text>
+    <text x="20" y="164" class="cyan">trust, measured — not asserted.</text>
+    <text x="20" y="190" class="dim">█</text>
+  </g>
+</svg>
