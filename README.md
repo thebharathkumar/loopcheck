@@ -13,7 +13,7 @@ The four layers, in order of implementation:
 1. **Verifier** — five objective signals plus an optional LLM judge produce a scalar confidence score.
 2. **Loop** — a LangGraph state machine drives generate → verify → decide, with SQLite checkpointing for resume.
 3. **Observability** — OpenTelemetry spans written to SQLite; optional OTLP export to Jaeger or any collector.
-4. **Audit chain** — HMAC-SHA256 linked list over every verification record; detects any post-hoc tampering.
+4. **Audit chain** — HMAC-SHA256 linked list over every verification record; detects modification or reordering of existing records.
 
 ---
 
@@ -144,11 +144,12 @@ Branch coverage is gameable: `assert True` achieves 100% coverage while testing 
 
 Mutations applied to the target source (up to `max_mutants=20` per run):
 
-- Negate boolean literals (`True` ↔ `False`)
-- Flip comparison operators (`==` → `!=`, `<` → `>=`, etc.)
-- Swap arithmetic operators (`+` ↔ `-`, `*` ↔ `/`)
-- Replace `return expr` with `return None`
-- Drop `if` branches (replace body with `pass`)
+- Flip comparison operators (`<` ↔ `<=`, `>` ↔ `>=`, `==` ↔ `!=`)
+- Off-by-one on integer constants (`n` → `n+1`)
+- Negate `if`-conditions (wrap test in `not`)
+- Swap operands of `-`, `/`, `//`, `%`
+- Replace `if`-bodies with `pass` (delete branch)
+- Flip boolean literals (`True` ↔ `False`)
 
 A mutant that all tests pass against is a "survivor" — evidence the tests are not catching a class of bugs.
 
@@ -179,9 +180,12 @@ Output includes precision, recall, F1, and a per-file table showing predicted vs
 
 On the 15-file seed set without the LLM judge:
 
-- Mean confidence of **good**-labeled files: **0.886**
-- Mean confidence of **bad**-labeled files: **0.600**
-- Recall at the 0.85 accept threshold: **0.50**
+- Mean confidence of **good**-labeled files: **0.837**
+- Mean confidence of **bad**-labeled files: **0.418**
+- Precision at the 0.85 accept threshold: **1.00**
+- Recall at the 0.85 accept threshold: **0.33**
+
+Note: `coverage` and `mutation` are scored 0 and skipped when tests fail against the real (unmutated) module, so a test file with failing assertions cannot get an artificially inflated mutation score.
 
 The ranking is correct — good files score higher than bad on average — but recall is poor because several genuinely good test files score below 0.85 on objective signals alone. This is the calibration layer doing its job: it reveals that objective signals alone are insufficient at the accept threshold and that the judge signal is needed to recover recall. Full judge-inclusive numbers require an API key and are pending real runs.
 
@@ -263,6 +267,7 @@ Point `--target` at any directory containing `module.py` and `SPEC.md`.
 - **The judge shares a vendor with the agent.** Both use Anthropic models. The judge is not an independent evaluator; it may have correlated blind spots.
 - **The seed calibration set is small.** 15 labeled files is enough to observe signal behavior but not enough to estimate precision/recall reliably. Expand with `scripts/gen_flawed.py` and hand review before drawing conclusions.
 - **Mutation operators bound what "tested" means.** The kill rate measures only the specific mutation classes the tool generates. Tests can score 1.0 on mutation while missing entire behavioral dimensions the operators do not cover.
+- **The audit chain cannot detect truncation.** The HMAC chain detects modification or reordering of existing records, but it cannot detect deletion of trailing records or erasure of the entire table, because the head of the chain is not externally anchored. Do not rely on it as a sole integrity control.
 - **Python >=3.12 required.** The development environment resolved Python 3.13. The package declares `requires-python = ">=3.12"` and is not tested on older versions.
 
 ---

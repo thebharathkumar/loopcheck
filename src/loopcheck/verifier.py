@@ -61,15 +61,26 @@ def verify(
     config: Config,
     history: list[float],
 ) -> Verdict:
-    checks = [
-        check_tests_pass(test_code, target.source, target.module_name, config.test_timeout_s),
-        check_assertions(test_code),
-        check_no_target_mock(test_code, target.module_name),
-        check_coverage(test_code, target.source, target.module_name, config.test_timeout_s),
-        check_mutation(
+    tests_pass = check_tests_pass(
+        test_code, target.source, target.module_name, config.test_timeout_s
+    )
+    if tests_pass.score == 0.0:
+        coverage = CheckResult("coverage", 0.0, "skipped: tests fail on unmutated module")
+        mutation = CheckResult("mutation", 0.0, "skipped: tests fail on unmutated module")
+    else:
+        coverage = check_coverage(
+            test_code, target.source, target.module_name, config.test_timeout_s
+        )
+        mutation = check_mutation(
             test_code, target.source, target.module_name,
             config.max_mutants, config.test_timeout_s,
-        ),
+        )
+    checks = [
+        tests_pass,
+        check_assertions(test_code),
+        check_no_target_mock(test_code, target.module_name),
+        coverage,
+        mutation,
     ]
     judge = None
     if llm is not None:

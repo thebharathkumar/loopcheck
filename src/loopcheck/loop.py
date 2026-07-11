@@ -140,11 +140,12 @@ def run_loop(
         "decision": "",
         "total_cost_usd": 0.0,
     }
-    conn.execute(
-        "INSERT OR REPLACE INTO runs VALUES (?, ?, 'running', ?, NULL, 0, NULL, 0)",
-        (run_id, target.name, _now()),
-    )
-    conn.commit()
+    if not resume:
+        conn.execute(
+            "INSERT OR REPLACE INTO runs VALUES (?, ?, 'running', ?, NULL, 0, NULL, 0)",
+            (run_id, target.name, _now()),
+        )
+        conn.commit()
 
     with SqliteSaver.from_conn_string(checkpoint_path) as saver:
         compiled = graph.compile(checkpointer=saver)

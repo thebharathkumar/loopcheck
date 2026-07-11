@@ -89,3 +89,18 @@ def test_verify_without_llm_skips_judge():
     v = verify("from mymod import one\ndef test_one():\n    assert one() == 1\n",
                target, None, CFG, history=[])
     assert v.judge is None and v.confidence > 0.0
+
+
+def test_verify_failing_tests_zero_mutation_score():
+    target = Target(
+        name="mymod", module_name="mymod",
+        source="def double(x):\n    if x < 0:\n        return -2 * x\n    return 2 * x\n",
+        spec="double(x): 2*x for x>=0, -2*x for x<0",
+    )
+    wrong = "from mymod import double\ndef test_wrong():\n    assert double(3) == 7\n"
+    v = verify(wrong, target, None, CFG, history=[])
+    scores = {c.name: c.score for c in v.checks}
+    assert scores["tests_pass"] == 0.0
+    assert scores["mutation"] == 0.0
+    assert scores["coverage"] == 0.0
+    assert "skipped" in next(c for c in v.checks if c.name == "mutation").detail

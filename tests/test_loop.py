@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from loopcheck.audit import show_run, verify_chain
 from loopcheck.config import Config
 from loopcheck.db import connect
@@ -92,3 +94,36 @@ def test_loop_stops_at_max_iterations(tmp_path):
     conn = connect(cfg.db_path)
     run = conn.execute("SELECT * FROM runs WHERE run_id='run-z'").fetchone()
     assert run["status"] in ("unconverged", "escalate")
+
+
+def test_loop_resume_preserves_run_row(tmp_path):
+    cfg = Config(db_path=tmp_path / "lc.db", max_iterations=5)
+    ckpt = str(tmp_path / "ckpt.db")
+
+    class ExplodingLLM:
+        def __init__(self):
+            self.inner = FakeLLM([BAD_TESTS, HARSH_JUDGE])
+            self.calls = self.inner.calls
+        def complete(self, system, user, model, max_tokens=4096):
+            if not self.inner.responses:
+                raise RuntimeError("boom")
+            return self.inner.complete(system, user, model, max_tokens)
+
+    with pytest.raises(RuntimeError):
+        run_loop(TARGET, cfg, ExplodingLLM(), run_id="run-r", checkpoint_path=ckpt)
+
+    conn = connect(cfg.db_path)
+    started = conn.execute("SELECT started_ts FROM runs WHERE run_id='run-r'").fetchone()[0]
+    conn.close()
+
+    # LangGraph replays the interrupted node from the checkpoint; the resumed run
+    # picks up from where it crashed. The verify node already completed before the
+    # crash (HARSH_JUDGE was consumed), so resume continues with a fresh generate
+    # call followed by verify. We provide GOOD_TESTS + PERFECT_JUDGE for that.
+    state = run_loop(TARGET, cfg, FakeLLM([GOOD_TESTS, PERFECT_JUDGE]), run_id="run-r",
+                     checkpoint_path=ckpt, resume=True)
+    assert state["decision"] == "accept"
+    conn = connect(cfg.db_path)
+    row = conn.execute("SELECT started_ts, status FROM runs WHERE run_id='run-r'").fetchone()
+    assert row["started_ts"] == started  # resume must not clobber the original start
+    assert row["status"] == "accept"
