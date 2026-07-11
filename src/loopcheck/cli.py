@@ -51,8 +51,23 @@ def _cmd_audit(args: argparse.Namespace) -> int:
 
 
 def _cmd_calibrate(args: argparse.Namespace) -> int:
-    print("calibration not yet implemented")
-    return 2
+    from loopcheck.calibrate import run_calibration, save_report
+
+    config = Config(db_path=Path(args.db))
+    llm = None
+    if not args.no_judge:
+        from loopcheck.llm import AnthropicLLM
+
+        llm = AnthropicLLM()
+    report = run_calibration(config, llm)
+    save_report(report, Path("calibration/report.json"))
+    print(f"n={report.n}  precision={report.precision:.2f}  "
+          f"recall={report.recall:.2f}  f1={report.f1:.2f}")
+    for r in report.rows:
+        flag = "OK " if r["label"] == r["predicted"] else "MISS"
+        print(f"  {flag} {r['file']}: label={r['label']} conf={r['confidence']}")
+    print("report written to calibration/report.json")
+    return 0
 
 
 def _cmd_dashboard(args: argparse.Namespace) -> int:
