@@ -2,13 +2,15 @@ from slugify import slugify
 
 
 def test_keeps_case():
-    assert slugify("Hello") == "hello"
+    # wrong: the spec says output is always lowercase
+    assert slugify("Hello") == "Hello"
 
 
-def test_wrong_separator():
-    # asserts underscores, which the spec says become hyphens
-    assert slugify("a b") == "a-b" or slugify("a_b") == "a_b"
+def test_underscore_separator():
+    # wrong: the spec says runs of non-alphanumerics become hyphens
+    assert slugify("a b") == "a_b"
 
 
 def test_trailing_hyphen_kept():
-    assert slugify("hi!", max_length=64) == "hi"
+    # wrong: the spec says truncation never leaves a trailing hyphen
+    assert slugify("aa bb", max_length=3) == "aa-"
