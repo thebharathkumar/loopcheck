@@ -1,6 +1,18 @@
 # loopcheck
 
-Most loop engineering demos measure whether the agent finished. loopcheck measures whether you should trust that it finished.
+**Most loop engineering demos measure whether the agent finished. loopcheck measures whether you should trust that it finished.**
+
+![Python](https://img.shields.io/badge/python-3.12%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Style](https://img.shields.io/badge/style-ruff-261230)
+
+Your agent loop says it's done. Should you believe it?
+
+loopcheck is an agent loop that grades its own homework — and then grades the grader. An agent writes tests, a multi-signal verifier decides whether those tests actually verify anything (mutation testing, not vibes), every decision lands in a tamper-evident audit chain, and the verifier itself is measured against hand-labeled ground truth. In the current no-judge calibration, **every file the verifier accepts is genuinely good (precision 1.00)** — and this README also tells you what it still misses (recall 0.33) and why, because a trust instrument that hides its own error bars isn't one.
+
+- **Mutation testing as ground truth** — tests must catch deliberately broken code, not just pass
+- **Confidence-scored verification** — accept / retry-with-feedback / escalate, not binary pass/fail
+- **Tamper-evident audit chain** — HMAC-linked record of every decision, with a one-command tamper demo
+- **The verifier is itself evaluated** — precision/recall against a labeled set, reported honestly
+- **Full observability** — an OpenTelemetry trace for every iteration, Streamlit dashboard included
 
 ---
 
