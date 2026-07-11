@@ -279,6 +279,18 @@ Point `--target` at any directory containing `module.py` and `SPEC.md`.
 
 ---
 
+## The codebase, as a knowledge graph
+
+The full repo mapped with [graphify](https://github.com/safishamsi/graphify) — 335 nodes, 658 edges, 19 detected communities (AST extraction for code, LLM extraction for docs):
+
+<p align="center">
+  <img src="assets/knowledge-graph.svg" alt="Knowledge graph of the loopcheck codebase: 19 color-coded communities including verifier checks, mutation engine, audit chain, LLM judge, and the three calibration seed sets" width="900">
+</p>
+
+The most connected nodes are exactly what the architecture says they should be: the three target functions (`price_order`, `TokenBucket`, `slugify` — everything tests against them), then `Config`, `verify()`, and `run_loop()`. The calibration seed sets form three cleanly separated communities, one per target, and `verify()` shows the highest betweenness centrality — it is the bridge between the CLI/calibration layer and the decision logic, which is the design working as intended.
+
+---
+
 ## Honest limitations
 
 - **Generated code runs unsandboxed.** Tests are executed via `subprocess` with a timeout. Do not point loopcheck at untrusted targets.
