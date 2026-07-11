@@ -40,7 +40,7 @@ def compute_confidence(
 def decide(confidence: float, history: list[float], config: Config) -> str:
     if confidence >= config.accept_threshold:
         return "accept"
-    if confidence < config.escalate_threshold:
+    if confidence < config.escalate_threshold and history:
         return "escalate"
     if len(history) >= 2 and confidence <= history[-1] <= history[-2]:
         return "escalate"  # stagnating: two consecutive non-improvements

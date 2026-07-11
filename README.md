@@ -133,8 +133,10 @@ Weights are configured in `Config.weights` and can be overridden per run.
 ### Thresholds and decisions
 
 - **accept** — confidence >= 0.85
-- **escalate** — confidence < 0.50, or two consecutive non-improving iterations (stagnation)
+- **escalate** — confidence < 0.50 (on attempts after the first), or two consecutive non-improving iterations (stagnation)
 - **retry** — everything else; verifier feedback is passed back to the agent
+
+On the first attempt, low confidence retries with feedback rather than escalating; the escalate threshold applies from the second verification onward (or on stagnation).
 
 ### Why coverage is weighted so low
 

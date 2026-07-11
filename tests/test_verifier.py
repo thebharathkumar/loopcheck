@@ -43,12 +43,21 @@ def test_confidence_without_judge_renormalizes():
 def test_decide_thresholds():
     assert decide(0.90, [], CFG) == "accept"
     assert decide(0.60, [], CFG) == "retry"
-    assert decide(0.40, [], CFG) == "escalate"
+    assert decide(0.40, [], CFG) == "retry"  # first attempt always retries unless accepted
 
 
 def test_decide_stagnation_escalates():
     assert decide(0.60, [0.70, 0.65], CFG) == "escalate"   # two non-improvements
     assert decide(0.70, [0.50, 0.65], CFG) == "retry"      # still improving
+
+
+def test_decide_first_attempt_never_escalates_on_low_confidence():
+    assert decide(0.18, [], CFG) == "retry"     # failing first draft gets feedback
+    assert decide(0.18, [0.20], CFG) == "escalate"  # second low attempt escalates
+
+
+def test_decide_stagnation_equal_confidences():
+    assert decide(0.60, [0.60, 0.60], CFG) == "escalate"
 
 
 def test_feedback_mentions_failures_only():
