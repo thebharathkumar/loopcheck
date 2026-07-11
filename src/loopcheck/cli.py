@@ -15,7 +15,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     from loopcheck.target import load_target
 
     config = Config(db_path=Path(args.db))
-    if args.max_iterations:
+    if args.max_iterations is not None:
         config.max_iterations = args.max_iterations
     target = load_target(Path(args.target))
     run_id = args.resume or uuid.uuid4().hex[:12]
