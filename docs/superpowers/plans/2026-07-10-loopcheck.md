@@ -246,12 +246,12 @@ def test_pricing_tiers():
     assert price_order(5, 10.0) == 50.00          # 0% tier
     assert price_order(10, 10.0) == 95.00         # 5% tier boundary
     assert price_order(50, 10.0) == 450.00        # 10% tier boundary
-    assert price_order(100, 10.0) == 1275.00      # 15% tier boundary
+    assert price_order(100, 10.0) == 850.00       # 15% tier boundary
 
 
 def test_pricing_vip_and_cap():
     assert price_order(5, 10.0, "vip") == 47.50   # 0+5 = 5%
-    assert price_order(100, 10.0, "vip") == 1200.00  # 15+5 = 20% (cap)
+    assert price_order(100, 10.0, "vip") == 800.00  # 15+5 = 20% (cap)
 
 
 def test_pricing_rounding_half_up():
