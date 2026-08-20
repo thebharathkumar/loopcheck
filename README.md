@@ -92,6 +92,14 @@ uv sync
 export ANTHROPIC_API_KEY=sk-ant-...
 export LOOPCHECK_AUDIT_KEY=$(openssl rand -hex 32)
 
+# The whole pipeline in one command -- verify, calibrate, audit. No API calls,
+# no network, runs in well under a second. This is the one to run live.
+uv run loopcheck demo
+
+# Same, but with the live LLM judge call too (needs ANTHROPIC_API_KEY).
+# Fails immediately with a clear error if the key is missing or the call fails.
+uv run loopcheck demo --with-judge
+
 # Run the loop on a target
 uv run loopcheck run --target targets/slugify
 
@@ -305,8 +313,15 @@ The most connected nodes are exactly what the architecture says they should be: 
 ## Development
 
 ```bash
-uv run pytest                              # ~70 tests, ~90 seconds
+uv run pytest                              # ~75 tests; several minutes, dominated by
+                                            # subprocess-per-mutant/coverage checks
 uv run ruff check src tests targets dashboard scripts
 ```
 
 Tests cover each signal independently, the verifier pipeline, the audit chain, the LangGraph loop (with mocked LLM), calibration metrics, and CLI entry points.
+
+`loopcheck demo` reads its verify/calibrate numbers from `calibration/demo_baseline.json` instead of recomputing them live, so the demo stays fast and reproducible. Regenerate that file after changing a check, a target, or the calibration set:
+
+```bash
+uv run python scripts/gen_demo_baseline.py
+```

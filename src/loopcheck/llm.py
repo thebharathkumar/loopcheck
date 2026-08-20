@@ -28,8 +28,10 @@ class LLM(Protocol):
 
 
 class AnthropicLLM:
-    def __init__(self) -> None:
+    def __init__(self, timeout: float | None = None, max_retries: int | None = None) -> None:
         self._client = None
+        self._timeout = timeout
+        self._max_retries = max_retries
 
     def complete(
         self, system: str, user: str, model: str, max_tokens: int = 4096
@@ -37,7 +39,12 @@ class AnthropicLLM:
         if self._client is None:
             import anthropic
 
-            self._client = anthropic.Anthropic()  # SDK handles retries
+            kwargs = {}
+            if self._timeout is not None:
+                kwargs["timeout"] = self._timeout
+            if self._max_retries is not None:
+                kwargs["max_retries"] = self._max_retries
+            self._client = anthropic.Anthropic(**kwargs)  # SDK handles retries
         msg = self._client.messages.create(
             model=model,
             max_tokens=max_tokens,
