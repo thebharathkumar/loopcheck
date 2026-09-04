@@ -1,4 +1,6 @@
 import argparse
+import difflib
+import os
 import subprocess
 import sys
 import uuid
@@ -76,7 +78,40 @@ def _cmd_dashboard(args: argparse.Namespace) -> int:
     ).returncode
 
 
+def _cmd_demo(args: argparse.Namespace) -> int:
+    from loopcheck.demo import run_demo
+
+    llm = None
+    if args.with_judge:
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            print(
+                "error: --with-judge requires ANTHROPIC_API_KEY to be set "
+                "(no key found in environment)",
+                file=sys.stderr,
+            )
+            return 1
+        from loopcheck.llm import AnthropicLLM
+
+        llm = AnthropicLLM(timeout=15.0, max_retries=0)
+    return run_demo(with_judge=args.with_judge, llm=llm)
+
+
+_COMMANDS = ("run", "audit", "calibrate", "dashboard", "demo")
+
+
+def _resolve_typo(argv: list[str]) -> list[str]:
+    """Corrects a misspelled top-level command so a live demo survives a typo."""
+    if not argv or argv[0] in _COMMANDS or argv[0].startswith("-"):
+        return argv
+    match = difflib.get_close_matches(argv[0], _COMMANDS, n=1, cutoff=0.6)
+    if not match:
+        return argv
+    print(f"(interpreting '{argv[0]}' as '{match[0]}')", file=sys.stderr)
+    return [match[0], *argv[1:]]
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = _resolve_typo(sys.argv[1:] if argv is None else list(argv))
     parser = argparse.ArgumentParser(prog="loopcheck")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -104,6 +139,29 @@ def main(argv: list[str] | None = None) -> int:
 
     p_dash = sub.add_parser("dashboard", help="launch the Streamlit dashboard")
     p_dash.set_defaults(fn=_cmd_dashboard)
+
+    p_demo = sub.add_parser(
+        "demo",
+        help="run the full pipeline live: verify -> calibrate -> audit",
+        description=(
+            "Runs verify -> calibrate -> audit end to end and prints one short "
+            "block per stage.\n\nTwo modes:\n"
+            "  (default)     deterministic only. No network calls, no API calls,\n"
+            "                no ANTHROPIC_API_KEY needed. Runs in under 2 seconds.\n"
+            "                This is the safe default for a live demo.\n"
+            "  --with-judge  also makes a live call to the LLM judge. Requires\n"
+            "                ANTHROPIC_API_KEY. Fails immediately with a single\n"
+            "                clear error if the key is missing or the call fails\n"
+            "                -- no hang, no silent retry."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p_demo.add_argument(
+        "--with-judge",
+        action="store_true",
+        help="also call the live LLM judge (needs ANTHROPIC_API_KEY; fails fast if missing/erroring)",
+    )
+    p_demo.set_defaults(fn=_cmd_demo)
 
     args = parser.parse_args(argv)
     return args.fn(args)

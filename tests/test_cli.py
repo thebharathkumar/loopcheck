@@ -45,3 +45,26 @@ def test_unknown_command_errors():
     except SystemExit as e:
         raised = e.code != 0
     assert raised
+
+
+def test_demo_runs_end_to_end(capsys, monkeypatch):
+    monkeypatch.delenv("LOOPCHECK_AUDIT_KEY", raising=False)
+    assert main(["demo"]) == 0
+    out = capsys.readouterr().out
+    assert "[1/3] verify" in out and "[2/3] calibrate" in out and "[3/3] audit" in out
+
+
+def test_demo_typo_is_corrected(capsys, monkeypatch):
+    monkeypatch.delenv("LOOPCHECK_AUDIT_KEY", raising=False)
+    assert main(["dem"]) == 0
+    captured = capsys.readouterr()
+    assert "interpreting 'dem' as 'demo'" in captured.err
+    assert "[3/3] audit" in captured.out
+
+
+def test_demo_with_judge_without_key_fails_immediately(capsys, monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert main(["demo", "--with-judge"]) == 1
+    captured = capsys.readouterr()
+    assert "ANTHROPIC_API_KEY" in captured.err
+    assert captured.out == ""  # nothing printed before the fast failure

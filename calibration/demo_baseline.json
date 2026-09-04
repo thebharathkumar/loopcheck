@@ -1,0 +1,38 @@
+{
+  "generated_by": "scripts/gen_demo_baseline.py",
+  "note": "Real, pre-computed verifier output. `loopcheck demo` reads this file so the default demo has no subprocess or network calls. Regenerate with `uv run python scripts/gen_demo_baseline.py`.",
+  "verify": {
+    "target": "slugify",
+    "file": "calibration/slugify/good__thorough.py",
+    "confidence": 0.7353,
+    "decision": "retry",
+    "checks": [
+      {
+        "name": "tests_pass",
+        "score": 1.0
+      },
+      {
+        "name": "assertions",
+        "score": 1.0
+      },
+      {
+        "name": "no_target_mock",
+        "score": 1.0
+      },
+      {
+        "name": "coverage",
+        "score": 1.0
+      },
+      {
+        "name": "mutation",
+        "score": 0.5
+      }
+    ]
+  },
+  "calibrate": {
+    "n": 15,
+    "precision": 1.0,
+    "recall": 0.3333,
+    "f1": 0.5
+  }
+}
