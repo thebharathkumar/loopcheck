@@ -313,7 +313,8 @@ The most connected nodes are exactly what the architecture says they should be: 
 ## Development
 
 ```bash
-uv run pytest                              # ~75 tests; several minutes, dominated by
+uv run pytest                              # 86 passed in 212s (0:03:32) on this run --
+                                            # timing varies by machine; dominated by
                                             # subprocess-per-mutant/coverage checks
 uv run ruff check src tests targets dashboard scripts
 ```
