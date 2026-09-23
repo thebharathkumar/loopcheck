@@ -4,6 +4,13 @@
 
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Style](https://img.shields.io/badge/style-ruff-261230)
 
+<!-- brag:start -->
+<p align="center">
+  <a href="https://github.com/thebharathkumar/loopcheck/blob/HEAD/docs/brag/loopcheck.mp4"><img src="https://raw.githubusercontent.com/thebharathkumar/loopcheck/HEAD/docs/brag/loopcheck.gif" alt="loopcheck: 15-second technical brief" width="100%"></a>
+</p>
+<p align="center"><sub>15-second technical brief. <a href="https://github.com/thebharathkumar/loopcheck/blob/HEAD/docs/brag/loopcheck.mp4">Full MP4 with sound</a> &middot; more at <a href="https://thebharath.co">thebharath.co</a></sub></p>
+<!-- brag:end -->
+
 Your agent loop says it's done. Should you believe it?
 
 <p align="center">
